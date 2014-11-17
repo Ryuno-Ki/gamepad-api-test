@@ -3,9 +3,77 @@
 <head>
     <meta charset="utf-8">
     <title>Gamepad API Test</title>
+    <style>
+        .axis, .button {
+            position: absolute;
+            height: 1rem;
+            width: 1rem;
+            background-color: gray;
+        }
+
+        .button {
+            border-radius: 0.5rem;
+        }
+
+        .pressed {
+            background-color: orange;
+        }
+
+        #up {
+            top: 3rem;
+            left: 2rem;
+        }
+
+        #down {
+            top: 5rem;
+            left: 2rem;
+        }
+
+        #left {
+            top: 4rem;
+            left: 1rem;
+        }
+
+        #right {
+            top: 4rem;
+            left: 3rem;
+        }
+
+        #Y {
+            top: 3rem;
+            left: 6rem;
+        }
+
+        #B {
+            top: 4rem;
+            left: 7rem;
+        }
+
+        #A {
+            top: 5rem;
+            left: 6rem;
+        }
+
+        #X {
+            top: 4rem;
+            left: 5rem;
+        }
+    </style>
 </head>
 <body>
 <p>Check the browser's JavaScript console for output.</p>
+
+<div>
+    <div id="up" class="axis"></div>
+    <div id="right" class="axis"></div>
+    <div id="down" class="axis"></div>
+    <div id="left" class="axis"></div>
+    
+    <div id="Y" class="button"></div>
+    <div id="B" class="button"></div>
+    <div id="A" class="button"></div>
+    <div id="X" class="button"></div>
+</div>
 <script>
 /* Here goes the JavaScript code we'll write */
 
@@ -31,7 +99,7 @@ var gamepadAPI = {
         var button = event.button;
         if(pressed) {
             console.log("Button "+button+" was pressed.");
-            if(button == 1) { // button[1] is B or O
+            if(button === 1) { // button[1] is B or O
                 GAME.startNewGame();
             }
         }
@@ -42,6 +110,7 @@ var gamepadAPI = {
     axisPressed: function(event) {
         var axis = event.axis;
         var value = event.value;
+        var axisElement;
         console.log("Axis: "+axis+", value: "+value+".");
     }
 };
@@ -55,16 +124,54 @@ window.addEventListener("gamepaddisconnected", function(e) {
 });
 window.addEventListener("gamepadbuttondown", function(e) {
     gamepadAPI.buttonPressed(e, true);
+    GAME.colorButton(e);
 });
 window.addEventListener("gamepadbuttonup", function(e) {
     gamepadAPI.buttonPressed(e, false);
 });
 window.addEventListener("gamepadaxismove", function(e){
     gamepadAPI.axisPressed(e);
+    GAME.colorAxis(e);
 });
 
 /* Let's create a GAME object for our game */
-var GAME = {};
+var GAME = {
+    colorButton: function (event) {
+        var button = event.button;
+        var buttonElement;
+
+        if(button === 0) {
+            buttonElement = document.querySelector("Y");
+        } else if(button === 1) {
+            buttonElement = document.querySelector("B");
+        } else if(button === 2) {
+            buttonElement = document.querySelector("A");
+        } else if(button === 3) {
+            buttonElement = document.querySelector("X");
+        } else {
+            console.log("Some other button pressed: %s", button);
+        }
+        buttonElement.classList.toggle("pressed");
+    },
+
+    colorAxis: function (event) {
+        var axis = event.axis;
+        var axisElement;
+
+        if(axis[0] !== 0) {
+            axisElement = document.querySelector("#up");
+        } else if(axis[1] !== 0) {
+            axisElement = document.querySelector("#right");
+        } else if(axis[2] !== 0) {
+            axisElement = document.querySelector("#down");
+        } else if(axis[3] !== 0) {
+            axisElement = document.querySelector("#left");
+        } else {
+            console.log("Unknown axis direction: %s.", axis)
+        }
+        axisElement.classList.toggle("pressed");
+    }
+};
 
 /* Here's the function that will start our game */
 GAME.startNewGame = function() {
